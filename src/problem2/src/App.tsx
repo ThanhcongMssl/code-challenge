@@ -1,29 +1,46 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
+import debounce from 'just-debounce';
 import './App.scss'
 import 'simplebar-react/dist/simplebar.min.css';
 
 import type { Token } from './types';
 
-import { swapToken } from './api';
+import { swapToken, calculateSwapAmount } from './api';
 import TokenInput from './components/TokenInput'
-
-function calculateSwapAmount(amount: string | number, fromToken: Token, toToken: Token) {
-  if (!amount || isNaN(Number(amount))) return '';
-  const amountNum = Number(amount);
-  const usdValue = amountNum * fromToken.price;
-  const receiveAmount = usdValue / toToken.price;
-  return Number.isInteger(receiveAmount) ? receiveAmount : receiveAmount.toFixed(6);
-}
 
 function App() {
   const [sendAmount, setSendAmount] = useState<string | number>('');
   const [sendToken, setSendToken] = useState<Token | null>(null);
   const [receiveAmount, setReceiveAmount] = useState<string | number>('');
   const [receiveToken, setReceiveToken] = useState<Token | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSwapping, setIsSwapping] = useState(false);
+  const [isCalculatingSendAmount, setIsCalculatingSendAmount] = useState(false);
+  const [isCalculatingReceiveAmount, setIsCalculatingReceiveAmount] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   const isDisabled = !sendAmount || sendAmount == 0 || !sendToken || !receiveToken || sendToken.currency === receiveToken.currency;
+
+  const calculateSendAmount = (amount: string | number, fromToken: Token, toToken: Token) => {
+    setIsCalculatingSendAmount(true);
+    calculateSwapAmount(amount, toToken, fromToken)
+      .then((res) => {
+        setSendAmount(res);
+      })
+      .finally(() => {
+        setIsCalculatingSendAmount(false);
+      });
+  }
+  const calculateReceiveAmount = (amount: string | number, fromToken: Token, toToken: Token) => {
+    setIsCalculatingReceiveAmount(true);
+    calculateSwapAmount(amount, fromToken, toToken)
+      .then((res) => {
+        setReceiveAmount(res);
+      }).finally(() => {
+        setIsCalculatingReceiveAmount(false);
+      });
+  }
+  const debouncedCalculateSendAmount = useCallback(debounce(calculateSendAmount, 300), []);
+  const debouncedCalculateReceiveAmount = useCallback(debounce(calculateReceiveAmount, 300), []);
 
   return (
     <>
@@ -36,18 +53,17 @@ function App() {
         <TokenInput
           amount={sendAmount}
           token={sendToken}
+          loading={isCalculatingSendAmount}
           onAmountChange={(amount) => {
             setSendAmount(amount);
             if (sendToken && receiveToken) {
-              const receiveAmt = calculateSwapAmount(amount, sendToken, receiveToken);
-              setReceiveAmount(receiveAmt);
+              debouncedCalculateReceiveAmount(amount, sendToken, receiveToken);
             }
           }}
           onTokenChange={(token) => {
             setSendToken(token);
-            if (sendAmount && token && receiveToken) {
-              const receiveAmt = calculateSwapAmount(sendAmount, token, receiveToken);
-              setReceiveAmount(receiveAmt);
+            if (sendAmount && receiveToken) {
+              calculateReceiveAmount(sendAmount, token, receiveToken);
             }
           }}
         />
@@ -56,18 +72,17 @@ function App() {
         <TokenInput 
           amount={receiveAmount}
           token={receiveToken}
+          loading={isCalculatingReceiveAmount}
           onAmountChange={(amount) => {
             setReceiveAmount(amount);
             if (sendToken && receiveToken) {
-              const sendAmt = calculateSwapAmount(amount, receiveToken, sendToken);
-              setSendAmount(sendAmt);
+              debouncedCalculateSendAmount(amount, receiveToken, sendToken);
             }
           }}
           onTokenChange={(token) => {
             setReceiveToken(token);
-            if (sendAmount && sendToken && token) {
-              const receiveAmt = calculateSwapAmount(sendAmount, sendToken, token);
-              setReceiveAmount(receiveAmt);
+            if (sendAmount && sendToken) {
+              calculateReceiveAmount(sendAmount, sendToken, token);
             }
           }}
         />
@@ -75,10 +90,10 @@ function App() {
         <button 
           type="button"
           disabled={isDisabled}
-          className={isLoading ? 'loading' : ''}
+          className={isSwapping ? 'loading' : ''}
           onClick={() => {
             if (sendAmount && sendToken && receiveToken) {
-              setIsLoading(true);
+              setIsSwapping(true);
               setMessage(null);
               swapToken(sendAmount.toString(), sendToken.currency, receiveToken.currency)
                 .then(() => {
@@ -89,12 +104,12 @@ function App() {
                   setReceiveToken(null);
                 })
                 .finally(() => {
-                  setIsLoading(false);
+                  setIsSwapping(false);
                 });
             }
-          }}>
-            CONFIRM SWAP
-          </button>
+        }}>
+          CONFIRM SWAP
+        </button>
       </form>
     </>
   )

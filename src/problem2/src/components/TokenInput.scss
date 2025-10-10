@@ -2,14 +2,19 @@
   display: flex;
   gap: 0;
   align-items: center;
+  position: relative;
 
   input {
-    padding: 5px 10px;
+    padding: 5px 25px 5px 10px;
     height: 30px;
     border: none;
     box-sizing: border-box;
     &:focus {
       outline: none;
+    }
+    &:disabled {
+      background: #333;
+      cursor: not-allowed;
     }
   }
 
@@ -33,12 +38,12 @@
         background: #444;
       }
       &:disabled {
-        background: #999;
+        background: #333;
         cursor: not-allowed;
       }
     }
 
-    & > input {
+    input {
       width: 120px;
       background-color: #555;
       display: none;
@@ -95,5 +100,20 @@
     display: inline-block;
     text-align: left;
     font-size: 14px;
+  }
+
+  &.loading {
+    &::after {
+      content: "";
+      position: absolute;
+      top: 25%;
+      right: 125px;
+      width: 9px;
+      height: 9px;
+      border: 2px solid #fff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
   }
 }

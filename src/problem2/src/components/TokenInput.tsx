@@ -12,11 +12,13 @@ function getTokenIconUrl(token: string) {
 function TokenInput({ 
   amount, 
   token, 
+  loading,
   onAmountChange,
   onTokenChange
 }: { 
   amount: string | number, 
   token: Token | null, 
+  loading: boolean,
   onAmountChange: (amount: string) => void 
   onTokenChange: (token: Token) => void
 }) {
@@ -28,8 +30,8 @@ function TokenInput({
   const pricesToShow = keyword ? filteredPrices : prices; 
 
   // Click outside to close dropdown
-  const searchRef = useRef(null);
-  const menuRef = useRef(null);
+  const searchRef = useRef<HTMLInputElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -45,12 +47,11 @@ function TokenInput({
   }, []);
 
   return (
-    <div className="token-input">
-      <input 
+    <div className={`token-input ${loading ? 'loading' : ''}`}>
+      <input
         value={amount} 
         onChange={e => {
           const value = e.target.value;
-          if (value.length > 10) return; // Limit input length
 
           // Allow only numbers and decimal points
           if (/^\d*\.?\d*$/.test(value)) {
@@ -63,6 +64,7 @@ function TokenInput({
         }} 
         type="text"
         placeholder="Enter token amount" 
+        disabled={loading}
       />
       <div className={`token-input__select ${isDropdownOpen ? 'open' : ''}`} ref={menuRef}>
         <button 
@@ -73,6 +75,7 @@ function TokenInput({
               searchRef.current?.focus();
             }, 0);
           }}
+          disabled={loading}
         >
           {token ? (
             <>
