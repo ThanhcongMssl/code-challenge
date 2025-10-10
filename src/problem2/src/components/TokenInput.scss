@@ -2,28 +2,61 @@
   display: flex;
   gap: 0;
   align-items: center;
-  position: relative;
 
   input {
     padding: 5px 10px;
-    height: 20px;
+    height: 30px;
     border: none;
+    box-sizing: border-box;
     &:focus {
       outline: none;
     }
   }
 
   &__select {
+    position: relative;
     button {
       cursor: pointer;
       display: inline-flex;
-      justify-content: center;
+      justify-content: left;
       align-items: center;
       width: 120px;
       height: 30px;
+      padding: 5px 14px;
       border-radius: 0;
       border: none;
       background-color: #555;
+      &:hover {
+        background: #666;
+      }
+      &:active {
+        background: #444;
+      }
+      &:disabled {
+        background: #999;
+        cursor: not-allowed;
+      }
+    }
+
+    & > input {
+      width: 120px;
+      background-color: #555;
+      display: none;
+      padding: 5px 14px;
+    }
+
+    &.open {
+      & > input {
+        display: inline-block;
+      }
+
+      & > button {
+        display: none;
+      }
+
+      .token-input__dropdown {
+        display: block;
+      }
     }
   }
 
@@ -39,6 +72,7 @@
     top: 30px;
     right: 0;
     z-index: 1;
+    display: none;
 
     &-item {
       display: inline-flex;
@@ -61,9 +95,5 @@
     display: inline-block;
     text-align: left;
     font-size: 14px;
-  }
-
-  .simplebar-scrollbar:before {
-    transition: none;
   }
 }

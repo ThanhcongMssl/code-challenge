@@ -19,31 +19,3 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
-
-h5 {
-  font-size: 2.4em;
-  line-height: 1.1;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-  margin-bottom: 1rem;
-  margin-top: 2rem;
-}
-
-form > button {
-  margin-top: 3rem;
-  width: 100%;
-  border: none;
-  color: white;
-  font-weight: 600;
-  padding: .6rem;
-  cursor: pointer;
-  font-size: 1rem;
-  text-transform: uppercase;
-}
