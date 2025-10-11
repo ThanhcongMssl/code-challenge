@@ -23,19 +23,20 @@ const WalletPage: React.FC<Props> = (props) => {
       'Neo': 20
     };
 
-    const priority = priorityMap[blockchain];
-    return priority !== undefined ? priority : -99;
+    return priorityMap[blockchain] ?? -99;
   }
 
   const sortedBalances = useMemo(() => {
-    return balances.filter((balance: WalletBalance) => {
-		  const balancePriority = getPriority(balance.blockchain);
-      return balancePriority > -99 && balance.amount > 0;
-		}).sort((lhs: WalletBalance, rhs: WalletBalance) => {
-			const leftPriority = getPriority(lhs.blockchain);
-		  const rightPriority = getPriority(rhs.blockchain);
-		  return rightPriority - leftPriority;
-    });
+    return balances
+      .filter((balance: WalletBalance) => {
+        const balancePriority = getPriority(balance.blockchain);
+        return balancePriority > -99 && balance.amount > 0;
+      })
+      .sort((lhs: WalletBalance, rhs: WalletBalance) => {
+        const leftPriority = getPriority(lhs.blockchain);
+        const rightPriority = getPriority(rhs.blockchain);
+        return rightPriority - leftPriority;
+      });
   }, [balances]);
 
   const rows = sortedBalances.map((balance: WalletBalance) => {
