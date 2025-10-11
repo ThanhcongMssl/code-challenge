@@ -9,18 +9,18 @@ import { swapToken, calculateSwapAmount } from './api';
 import TokenInput from './components/TokenInput'
 
 function App() {
-  const [sendAmount, setSendAmount] = useState<string | number>('');
+  const [sendAmount, setSendAmount] = useState<string>('');
   const [sendToken, setSendToken] = useState<Token | null>(null);
-  const [receiveAmount, setReceiveAmount] = useState<string | number>('');
+  const [receiveAmount, setReceiveAmount] = useState<string>('');
   const [receiveToken, setReceiveToken] = useState<Token | null>(null);
-  const [isSwapping, setIsSwapping] = useState(false);
-  const [isCalculatingSendAmount, setIsCalculatingSendAmount] = useState(false);
-  const [isCalculatingReceiveAmount, setIsCalculatingReceiveAmount] = useState(false);
+  const [isSwapping, setIsSwapping] = useState<boolean>(false);
+  const [isCalculatingSendAmount, setIsCalculatingSendAmount] = useState<boolean>(false);
+  const [isCalculatingReceiveAmount, setIsCalculatingReceiveAmount] = useState<boolean>(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  const isDisabled = !sendAmount || sendAmount == 0 || !sendToken || !receiveToken || sendToken.currency === receiveToken.currency;
+  const isDisabled = !sendAmount || sendAmount === '0' || !sendToken || !receiveToken || sendToken.currency === receiveToken.currency;
 
-  const calculateSendAmount = (amount: string | number, fromToken: Token, toToken: Token) => {
+  const calculateSendAmount = (amount: string, fromToken: Token, toToken: Token) => {
     setIsCalculatingSendAmount(true);
     calculateSwapAmount(amount, toToken, fromToken)
       .then((res) => {
@@ -30,7 +30,7 @@ function App() {
         setIsCalculatingSendAmount(false);
       });
   }
-  const calculateReceiveAmount = (amount: string | number, fromToken: Token, toToken: Token) => {
+  const calculateReceiveAmount = (amount: string, fromToken: Token, toToken: Token) => {
     setIsCalculatingReceiveAmount(true);
     calculateSwapAmount(amount, fromToken, toToken)
       .then((res) => {

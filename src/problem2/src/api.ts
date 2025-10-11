@@ -12,13 +12,13 @@ function swapToken(amount: string, from: string, to: string) {
   });
 }
 
-function calculateSwapAmount(amount: string | number, fromToken: Token, toToken: Token) {
-  return new Promise<string | number>((resolve) => {
+function calculateSwapAmount(amount: string, fromToken: Token, toToken: Token) {
+  return new Promise<string>((resolve) => {
     setTimeout(() => {
       const fromTokenPrice = prices.find(t => t.currency === fromToken.currency)?.price || 0;
       const toTokenPrice = prices.find(t => t.currency === toToken.currency)?.price || 0;
 
-      if (!amount || isNaN(Number(amount))) {
+      if (!amount) {
         resolve('');
         return;
       };

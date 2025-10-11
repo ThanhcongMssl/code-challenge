@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import prices from '../prices.json';
 import SimpleBar from 'simplebar-react';
 
@@ -16,18 +16,19 @@ function TokenInput({
   onAmountChange,
   onTokenChange
 }: { 
-  amount: string | number, 
+  amount: string, 
   token: Token | null, 
   loading: boolean,
   onAmountChange: (amount: string) => void 
   onTokenChange: (token: Token) => void
 }) {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [keyword, setKeyword] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const [keyword, setKeyword] = useState<string>('');
 
   // Filter tokens based on keyword
-  const filteredPrices = prices.filter(t => t.currency.toLowerCase().includes(keyword.toLowerCase()));
-  const pricesToShow = keyword ? filteredPrices : prices; 
+  const filteredPrices = useMemo(() => 
+    prices.filter(t => t.currency.toLowerCase().includes(keyword.toLowerCase()))
+  , [keyword, prices]);
 
   // Click outside to close dropdown
   const searchRef = useRef<HTMLInputElement | null>(null);
@@ -97,7 +98,7 @@ function TokenInput({
         <SimpleBar 
           className="token-input__dropdown"
         >
-          {pricesToShow
+          {filteredPrices
             .sort((a , b) => { return a.currency.toLowerCase() > b.currency.toLowerCase() ? 1 : -1})
             .map((token) => (
               <div
