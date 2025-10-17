@@ -8,13 +8,15 @@
 h5 {
   font-size: 2.4em;
   line-height: 1.1;
-  margin: 40px 0 20px;
+  margin: 30px 0 20px;
 }
 
 p {
   color: white;
   min-height: 30px;
   font-weight: bold;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
   &.success {
     color: green;
   }
@@ -32,12 +34,21 @@ label {
   font-size: 0.75rem;
   letter-spacing: 0.05em;
   margin-bottom: 1rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
+}
+
+.balance {
+  position: absolute;
+  right: 0;
+  top: 1px;
+  font-size: 0.75rem;
+  color: #ccc;
 }
 
 form {
+  position: relative;
   & > button {
-    margin-top: 3rem;
+    margin-top: 1.5rem;
     width: 100%;
     border: none;
     color: white;

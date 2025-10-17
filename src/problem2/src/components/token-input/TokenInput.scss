@@ -1,14 +1,20 @@
 .token-input {
   display: flex;
-  gap: 0;
-  align-items: center;
-  position: relative;
+  flex-direction: column;
+  &__input-group {
+    display: flex;
+    gap: 0;
+    align-items: center;
+    position: relative;
+  }
 
   input {
     padding: 5px 25px 5px 10px;
     height: 30px;
     border: none;
     box-sizing: border-box;
+    border: 1px solid #333;
+    background-color: #333;
     &:focus {
       outline: none;
     }
@@ -100,6 +106,23 @@
     display: inline-block;
     text-align: left;
     font-size: 14px;
+  }
+
+  &__validation-error {
+    color: rgb(188, 15, 15);
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: normal;
+    min-height: 20px;
+    height: 20px;
+    margin-top: 5px;
+    margin-bottom: 0;
+  }
+
+  &.error {
+    input {
+      border: 1px solid rgb(188, 15, 15);
+    }
   }
 
   &.loading {

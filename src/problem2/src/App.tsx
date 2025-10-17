@@ -1,12 +1,17 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import debounce from 'just-debounce';
+import BigNumber from "bignumber.js";
 import './App.scss'
 import 'simplebar-react/dist/simplebar.min.css';
 
+import type { Balance } from './types/token';
+
 import { swapToken, calculateSwapAmount } from './services/swap';
+import { getBalance } from './services/balance';
 import TokenInput from './components/token-input/TokenInput'
 
 function App() {
+  const [balance, setBalance] = useState<Balance>({});
   const [sendAmount, setSendAmount] = useState<string>('');
   const [sendToken, setSendToken] = useState<string>('');
   const [receiveAmount, setReceiveAmount] = useState<string>('');
@@ -16,7 +21,12 @@ function App() {
   const [isCalculatingReceiveAmount, setIsCalculatingReceiveAmount] = useState<boolean>(false);
   const [message, setMessage] = useState<{text: string, type: 'success' | 'error'} | null>(null);
 
+  const availableBalance = balance[sendToken] || 0;
+  const isMoreThanBalance = sendToken && Number(sendAmount) > availableBalance;
+  const validationError = isMoreThanBalance ? 'Amount exceeds available balance' : '';
+
   const isDisabled = 
+    !!validationError ||
     isCalculatingSendAmount ||
     isCalculatingReceiveAmount || 
     !sendAmount || 
@@ -63,6 +73,12 @@ function App() {
   const debouncedCalculateSendAmount = useCallback(debounce(calculateSendAmount, 300), []);
   const debouncedCalculateReceiveAmount = useCallback(debounce(calculateReceiveAmount, 300), []);
 
+  useEffect(() => {
+    getBalance().then((bal) => {
+      setBalance(bal);
+    });
+  }, []);
+
   return (
     <>
       <h5>Swap</h5>
@@ -71,6 +87,7 @@ function App() {
 
       <form>
         <label>Amount to send</label>
+        {sendToken && <span className="balance">Balance: {BigNumber(availableBalance).decimalPlaces(6).toFixed()}</span>}
         <TokenInput
           amount={sendAmount}
           token={sendToken}
@@ -89,6 +106,7 @@ function App() {
               calculateSendAmount(receiveAmount, token, receiveToken);
             }
           }}
+          error={validationError}
         />
 
         <label>Amount to receive</label>
@@ -130,6 +148,12 @@ function App() {
                   setReceiveAmount('');
                   setSendToken('');
                   setReceiveToken('');
+                  setBalance((prevBalance) => {
+                    const newBalance = { ...prevBalance };
+                    newBalance[sendToken] -= Number(sendAmount);
+                    newBalance[receiveToken] = (newBalance[receiveToken] || 0) + Number(receiveAmount);
+                    return newBalance;
+                  });
                 })
                 .catch(() => {
                   setMessage({

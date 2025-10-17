@@ -1,4 +1,9 @@
 type Token = {
   currency: string, date: string, price: number
 }
-export type { Token };
+
+type Balance = {
+  [key: string]: number
+}
+
+export type { Token, Balance };
